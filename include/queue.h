@@ -6,18 +6,22 @@ private:
     T* data;
     int capacity;
     int size;
+    int start;
+    int end;
 
     void repack() {
         int cap = capacity * 2;
-        int* data2 = new int[cap];
-        for (int i = 0; i < size; i++) data2[i] = data[i];
+        T* data2 = new T[cap];
+        for (int i = 0; i < size; i++) data2[i] = data[(i + start) % capacity];
         delete[] data;
         data = data2;
         capacity = cap;
+        start = 0;
+        end = size;
     }
 
 public:
-    Queue(int cap = 2) : capacity(cap), size(0) {
+    Queue(int cap = 2) : capacity(cap), size(0), start(0), end(0) {
         data = new int[capacity];
     }
 
@@ -27,21 +31,23 @@ public:
 
     int is_empty() const { return size == 0; }
 
-    void push(int val) {
+    void push(const T& val) {
         if (size == capacity) repack();
-        data[size++] = val;
+        data[end] = val;
+        end = (end + 1) % capacity;
+        size++;
     }
 
     T pop() {
-        if (is_empty()) return 0;
+        if (is_empty()) throw "Queue is empty";
         T val = data[0];
-        for (int i = 1; i < size; i++) data[i - 1] = data[i];
+        start++;
         size--;
         return val;
     }
 
     void clear() {
-        data = new int[0];
+        data = new T[0];
         size = 0;
     }
 };
